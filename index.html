@@ -36,10 +36,6 @@
             .then(function (memberList) {
                     console.log(memberList);
 
-                    memberList.sort(function (a, b) {
-                        return a.score - b.score
-                    });
-
                     var treeData = d3.stratify()
                         .id(function (d) {
                             return d.name;
@@ -50,15 +46,15 @@
                         (memberList);
 
                     console.log(treeData);
-                    var vRoot = d3.hierarchy(treeData).sum(function (d) { return d.score; });
+                    var vRoot = d3.hierarchy(treeData)
+                        .sum(function (d) { return d.score; })
+                        .sort(function(a, b) { return b.score - a.score; });
                     console.log(vRoot);
-                    var vNodes = vRoot.descendants();
-
-                    bubble(vRoot);
+                    vRoot = bubble(vRoot);
                     console.log(vRoot);
 
                 var node = svg.selectAll(".node")
-                        .data(vNodes)
+                        .data(vRoot.descendants())
                         .enter().append("g")
                         .attr("class", "node")
                         .attr("transform", function (d) {
