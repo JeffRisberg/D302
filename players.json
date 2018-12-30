@@ -1,8 +1,8 @@
 [
- {"name": "X",  "score": 0, "teamName": null},
- {"name": "Sharks",  "score": 0, "teamName": "X"},
- {"name": "Jets",  "score": 0, "teamName": "X"},
- {"name": "Bernardo", "score": 40,  "teamName": "Sharks"},
+ {"name": "story",  "score": 0 },
+ {"name": "Sharks",  "score": 0, "teamName": "story"},
+ {"name": "Jets",  "score": 0, "teamName": "story"},
+ {"name": "Bernardo", "score": 60,  "teamName": "Sharks"},
  {"name": "Chino", "score": 35,  "teamName": "Sharks"},
  {"name": "Tony", "score": 89,  "teamName": "Jets"},
  {"name": "Action", "score": 22, "teamName": "Jets"},
