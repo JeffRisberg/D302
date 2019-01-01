@@ -12,6 +12,7 @@
     text {
         font: 10px sans-serif;
     }
+
     .link {
         fill: none;
         stroke: #222;
@@ -23,83 +24,97 @@
     $(document).ready(function () {
 
         var diameter = 400,
-                format = d3.format(",d"),
-                color = d3.scale.category20c();
+            format = d3.format(",d"),
+            color = d3.scaleOrdinal(d3["schemeAccent"]);
 
         var svg = d3.select("body").append("svg")
-                .attr("width", diameter)
-                .attr("height", diameter)
-                .attr("class", "bubble");
+            .attr("width", diameter)
+            .attr("height", diameter)
+            .attr("class", "bubble");
 
+        /*
         var diagonal = d3.svg.diagonal()
-                .projection(function(d) { return [d.x, d.y]; });
+            .projection(function (d) {
+                return [d.x, d.y];
+            });
+            */
 
-        var tree = d3.layout.tree()
-                .size([diameter, diameter]);
+        var tree = d3.tree()
+            .size([diameter, diameter]);
 
         var i = 0;
 
-        var p = d3.scale.category10();
+        var p = d3.scaleOrdinal(d3.schemeCategory10);
 
-        d3.json("players.json", function (error, memberList) {
+        d3.json("players.json")
+            .then(function (memberList) {
 
-            memberList.sort(function (a, b) {
-                return a.score - b.score
-            });
+                var root = d3.stratify()
+                    .id(function (d) {
+                        return d.name;
+                    })
+                    .parentId(function (d) {
+                        return d.teamName;
+                    })
+                    (memberList);
 
-            var root = teamUp(memberList);
+                var vRoot = d3.hierarchy(root)
+                    .sum(function (d) {
+                        return d.data.score;
+                    })
+                    .sort(function (a, b) {
+                        return b.data.score - a.data.score;
+                    });
 
-            // Compute the new tree layout.
-            var nodes = tree.nodes(root).reverse(),
+                // Compute the new tree layout.
+                var nodes = tree.nodes(vRoot).reverse(),
                     links = tree.links(nodes);
 
-            // Normalize for fixed-depth.
-            nodes.forEach(function(d) { d.y = d.depth * 100; });
+                // Normalize for fixed-depth.
+                nodes.forEach(function (d) {
+                    d.y = d.depth * 100;
+                });
 
-            // Declare the nodes…
-            var node = svg.selectAll("g.node")
-                    .data(nodes, function(d) { return d.id || (d.id = ++i); });
-            // Enter the nodes.
-            var nodeEnter = node.enter().append("g")
+                // Declare the nodes…
+                var node = svg.selectAll("g.node")
+                    .data(nodes, function (d) {
+                        return d.id || (d.id = ++i);
+                    });
+                // Enter the nodes.
+                var nodeEnter = node.enter().append("g")
                     .attr("class", "node")
-                    .attr("transform", function(d) {
-                        return "translate(" + d.x + "," + d.y + ")"; });
-            nodeEnter.append("circle")
+                    .attr("transform", function (d) {
+                        return "translate(" + d.x + "," + d.y + ")";
+                    });
+                nodeEnter.append("circle")
                     .attr("r", 10)
                     .style("fill", "#888");
-            nodeEnter.append("text")
-                    .attr("y", function(d) {
-                        return d.children || d._children ? -18 : 18; })
+                nodeEnter.append("text")
+                    .attr("y", function (d) {
+                        return d.children || d._children ? -18 : 18;
+                    })
                     .attr("dy", ".35em")
                     .attr("text-anchor", "middle")
-                    .text(function(d) { return d.name; })
+                    .text(function (d) {
+                        return d.name;
+                    })
                     .style("fill-opacity", 1);
 
-            // Declare the links…
-            var link = svg.selectAll("path.link")
-                    .data(links, function(d) { return d.target.id; });
+                // Declare the links…
+                var link = svg.selectAll("path.link")
+                    .data(links, function (d) {
+                        return d.target.id;
+                    });
 
-            // Enter the links.
-            link.enter().insert("path", "g")
+                /*
+                // Enter the links.
+                link.enter().insert("path", "g")
                     .attr("class", "link")
                     .attr("d", diagonal);
+                    */
 
-            d3.select(self.frameElement).style("height", diameter + "px");
-        });
-
-        function teamUp(memberList) {
-            var players = [];
-
-            memberList.forEach(function (node) {
-                var player = {name: node.name, r: 10, stroke: p(0), value: node.score, color: p(node.score)};
-
-                players.push(player);
+                d3.select(self.frameElement).style("height", diameter + "px");
             });
-
-            var root = {name: "root", children: players};
-            console.log(root);
-            return root;
-        }
     });
 </script>
 </body>
